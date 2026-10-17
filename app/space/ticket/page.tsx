@@ -33,20 +33,19 @@ interface CrewItem {
 }
 
 const SEAT_LAYOUT: string[][] = [
-  ["DOOR", "BLANK", "BLANK", "BLANK", "BLANK"],
-  ["1", "2", "3", "4", "5"],
-  ["6", "7", "8", "9", "10"],
-  ["11", "12", "13", "14", "15"],
-  ["16", "17", "18", "19", "20"],
-  ["21", "22", "23", "24", "25"],
-  ["26", "27", "28", "29", "30"],
-  ["31", "32", "33", "34", "35"],
-  ["36", "37", "38", "39", "40"],
-  ["41", "42", "43", "44", "45"],
-  ["46", "47", "48", "49", "50"],
-  ["51", "52", "53", "54", "55"],
+  ["1", "2", "AISLE", "3", "4", "5"],
+  ["6", "7", "AISLE", "8", "9", "10"],
+  ["11", "12", "AISLE", "13", "14", "15"],
+  ["16", "17", "AISLE", "18", "19", "20"],
+  ["21", "22", "AISLE", "23", "24", "25"],
+  ["26", "27", "AISLE", "28", "29", "30"],
+  ["31", "32", "AISLE", "33", "34", "35"],
+  ["36", "37", "AISLE", "38", "39", "40"],
+  ["41", "42", "AISLE", "43", "44", "45"],
+  ["DOOR_BACK", "DOOR_BACK", "AISLE", "46", "47", "48"],
+  ["49", "50", "AISLE", "51", "52", "53"],
 ];
-const BACK_ROW = ["56", "57", "58", "59", "60"];
+const BACK_ROW = ["54", "55", "56", "57", "58", "59"];
 
 function TicketPageInner() {
   const searchParams = useSearchParams();
@@ -483,21 +482,18 @@ function SeatMap({ seat }: { seat: string }) {
         {SEAT_LAYOUT.map((row, ri) => (
           <div key={ri} className="grid grid-cols-6 gap-1.5">
             {row.map((s, ci) => {
-              if (ci === 2) {
+              if (s === "AISLE") {
                 return <div key={`sp-${ci}`} />;
               }
-              if (s === "DOOR") {
+              if (s === "DOOR_BACK") {
                 return (
                   <div
-                    key={s}
+                    key={`door-${ci}`}
                     className="col-span-1 flex items-center justify-center text-[0.45rem] font-bold text-neutral-500 border-2 border-dashed border-[#262626] rounded bg-[#121212]"
                   >
                     <span className="-rotate-90">PINTU</span>
                   </div>
                 );
-              }
-              if (s === "BLANK") {
-                return <div key={`b-${ci}`} className="col-span-1" />;
               }
               const isMine = s === seat;
               return (
@@ -529,7 +525,7 @@ function SeatMap({ seat }: { seat: string }) {
           </div>
         ))}
 
-        <div className="grid grid-cols-5 gap-1 mt-3 pt-2 border-t border-[#1f1f1f]">
+        <div className="grid grid-cols-6 gap-1 mt-3 pt-2 border-t border-[#1f1f1f]">
           {BACK_ROW.map((s) => {
             const isMine = s === seat;
             return (
