@@ -11,7 +11,7 @@ import type { NextRequest } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 
 // Path publik di dalam area space (tanpa prefix /space saat dibandingkan)
-const SPACE_PUBLIC_PATHS = ["/registrasi", "/ticket"];
+const SPACE_PUBLIC_PATHS = ["/registrasi", "/ticket", "/lengkapi-data"];
 
 export async function middleware(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
