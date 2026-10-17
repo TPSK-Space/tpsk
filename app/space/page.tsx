@@ -38,7 +38,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full max-w-sm px-6">
+    <div className="min-h-screen w-full flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
       <div className="text-center mb-10">
         <img
           src="/Asset 1.png"
@@ -99,6 +100,7 @@ export default function LoginPage() {
       <p className="text-center text-[0.6rem] text-neutral-500 mt-8 tracking-widest uppercase">
         Internal Access Only
       </p>
+      </div>
     </div>
   );
 }

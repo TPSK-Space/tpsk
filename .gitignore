@@ -28,3 +28,25 @@ dist/
 
 # supabase cli temp
 supabase/.temp/
+
+# data internal / dapur (jangan di-push)
+supabase/
+manifest.md
+
+# editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# log
+*.log
+
+# env (semua file env kecuali contohnya)
+.env.*
+!.env.example
+
+# cache & coverage
+.turbo/
+.cache/
+coverage/
