@@ -561,43 +561,80 @@ function SeatMap({ seat }: { seat: string }) {
 }
 
 function RundownList({ rundowns }: { rundowns: RundownItem[] }) {
+  // Format timestamptz -> "HH:mm" waktu lokal
+  const fmtTime = (t?: string | null) => {
+    if (!t) return null;
+    const d = new Date(t);
+    if (isNaN(d.getTime())) return t;
+    return d.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
   if (rundowns.length === 0) {
     return (
       <div className="bg-[#121212] border border-[#262626] rounded-2xl p-8 text-center">
-        <p className="text-neutral-500 text-xs uppercase tracking-wider">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#00ffd0]/10 border border-[#00ffd0]/20 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#00ffd0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <p className="text-neutral-400 text-xs font-bold uppercase tracking-widest">
           Rundown belum tersedia
         </p>
       </div>
     );
   }
+
   return (
-    <div className="bg-[#121212] border border-[#262626] rounded-2xl p-5 shadow-xl">
-      <h3 className="text-white text-xs font-bold uppercase tracking-widest mb-4">
-        Rundown Perjalanan
-      </h3>
-      <div className="space-y-3">
-        {rundowns.map((r, i) => (
-          <div key={i} className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <div className="w-2 h-2 rounded-full bg-[#00ffd0] mt-1.5" />
-              {i < rundowns.length - 1 && (
-                <div className="w-px flex-1 bg-[#262626]" />
-              )}
-            </div>
-            <div className="flex-1 pb-1">
-              <p className="text-[#00ffd0] text-xs font-black font-mono tracking-wider">
-                {r.activity_time || "--:--"}
-                {r.duration_minutes ? (
-                  <span className="text-neutral-500 font-normal ml-2">
-                    {r.duration_minutes} mnt
-                  </span>
-                ) : null}
-              </p>
-              <p className="text-white text-sm mt-0.5">{r.description || "-"}</p>
-            </div>
-          </div>
-        ))}
+    <div className="bg-gradient-to-b from-[#151515] to-[#0d0d0d] border border-[#262626] rounded-2xl p-5 shadow-xl">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#00ffd0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <h3 className="text-white text-xs font-bold uppercase tracking-widest">
+            Rundown Perjalanan
+          </h3>
+        </div>
+        <span className="text-[0.6rem] font-bold text-[#00ffd0] bg-[#00ffd0]/10 border border-[#00ffd0]/20 rounded-full px-2.5 py-0.5">
+          {rundowns.length} agenda
+        </span>
       </div>
+
+      <ol className="relative border-l border-[#2a2a2a] ml-2 space-y-5">
+        {rundowns.map((r, i) => {
+          const time = fmtTime(r.activity_time);
+          return (
+            <li key={i} className="ml-5 relative">
+              {/* node */}
+              <span className="absolute -left-[27px] top-0 w-3.5 h-3.5 rounded-full border-2 border-[#00ffd0] bg-[#0a0a0a] shadow-[0_0_10px_rgba(0,255,208,0.5)]" />
+              <span className="absolute -left-[26px] top-3.5 bottom-[-20px] w-px bg-gradient-to-b from-[#00ffd0]/40 to-[#262626] last:hidden" />
+
+              <div className="bg-[#0a0a0a] border border-[#262626] rounded-xl px-3.5 py-3 hover:border-[#00ffd0]/40 transition-colors">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {time && (
+                      <span className="text-[#00ffd0] text-sm font-black font-mono tracking-wider tabular-nums">
+                        {time}
+                      </span>
+                    )}
+                    {r.duration_minutes ? (
+                      <span className="text-[0.55rem] font-bold text-neutral-400 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md px-1.5 py-0.5">
+                        {r.duration_minutes} mnt
+                      </span>
+                    ) : null}
+                  </div>
+                  <span className="text-[0.55rem] font-bold text-neutral-600 shrink-0">
+                    #{String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <p className="text-white text-sm font-medium leading-snug">
+                  {r.description || "-"}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
