@@ -4,6 +4,7 @@ import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import TripDetailLayout from "@/components/space/TripDetailLayout";
 import { apiClient } from "@/lib/apiClient";
+import { supabase } from "@/lib/supabase";
 import { formatRupiah, generateUniqueCode } from "@/lib/utils";
 
 function PesertaTripPageInner() {
@@ -334,33 +335,38 @@ function PesertaTripPageInner() {
       if (!busGridBody) return;
       busGridBody.innerHTML = "";
 
+      // 6 kolom: [kiri][kiri][LORONG][kanan][kanan][kanan]
+      // Baris 1-9 : kiri 2 + kanan 3 (kursi 1-45)
+      // Baris 10  : pintu belakang (kiri span 2) + kanan 3 (46,47,48)
+      // Baris 11  : kiri 2 (49,50) + kanan 3 (51,52,53)
+      // Baris belakang: full 6 (54-59)
       const layout = [
-        ["DOOR", "BLANK", "BLANK", "BLANK", "BLANK"],
-        ["1", "2", "3", "4", "5"],
-        ["6", "7", "8", "9", "10"],
-        ["11", "12", "13", "14", "15"],
-        ["16", "17", "18", "19", "20"],
-        ["21", "22", "23", "24", "25"],
-        ["26", "27", "28", "29", "30"],
-        ["31", "32", "33", "34", "35"],
-        ["36", "37", "38", "39", "40"],
-        ["41", "42", "43", "44", "45"],
-        ["46", "47", "48", "49", "50"],
-        ["51", "52", "53", "54", "55"],
+        ["1", "2", "AISLE", "3", "4", "5"],
+        ["6", "7", "AISLE", "8", "9", "10"],
+        ["11", "12", "AISLE", "13", "14", "15"],
+        ["16", "17", "AISLE", "18", "19", "20"],
+        ["21", "22", "AISLE", "23", "24", "25"],
+        ["26", "27", "AISLE", "28", "29", "30"],
+        ["31", "32", "AISLE", "33", "34", "35"],
+        ["36", "37", "AISLE", "38", "39", "40"],
+        ["41", "42", "AISLE", "43", "44", "45"],
+        ["DOOR_BACK", "DOOR_BACK", "AISLE", "46", "47", "48"],
+        ["49", "50", "AISLE", "51", "52", "53"],
       ];
-      const backRowSeats = ["56", "57", "58", "59", "60"];
+      const backRowSeats = ["54", "55", "56", "57", "58", "59"];
 
       layout.forEach((row) => {
         const rowDiv = document.createElement("div");
         rowDiv.className = "grid grid-cols-6 gap-1.5";
-        row.forEach((seat, index) => {
-          if (index === 2) rowDiv.appendChild(document.createElement("div"));
+        row.forEach((seat) => {
+          if (seat === "AISLE") {
+            rowDiv.appendChild(document.createElement("div"));
+            return;
+          }
           const seatDiv = document.createElement("div");
-          if (seat === "DOOR") {
+          if (seat === "DOOR_BACK") {
             seatDiv.className = "col-span-1 flex items-center justify-center text-[0.45rem] font-bold text-neutral-500 border-2 border-dashed border-[#262626] rounded bg-[#121212]";
             seatDiv.innerHTML = '<span class="-rotate-90">PINTU</span>';
-          } else if (seat === "BLANK") {
-            seatDiv.className = "col-span-1";
           } else {
             const participant = data.find((p) => p.seat_number?.trim().toUpperCase() === seat);
             if (participant) {
@@ -388,7 +394,7 @@ function PesertaTripPageInner() {
       });
 
       const backRowDiv = document.createElement("div");
-      backRowDiv.className = "grid grid-cols-5 gap-1 mt-3 pt-2 border-t border-[#1f1f1f]";
+      backRowDiv.className = "grid grid-cols-6 gap-1 mt-3 pt-2 border-t border-[#1f1f1f]";
       backRowSeats.forEach((seat) => {
         const seatDiv = document.createElement("div");
         const participant = data.find((p) => p.seat_number?.trim().toUpperCase() === seat);
@@ -734,7 +740,29 @@ function PesertaTripPageInner() {
       }
     });
 
+    // Realtime: auto-refresh manifest ketika ada perubahan data peserta
+    // (check-in, assign seat, tambah/hapus peserta, dsb.)
+    const channel = supabase
+      .channel(`peserta-${tripId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "trip_participants",
+          filter: `trip_id=eq.${tripId}`,
+        },
+        () => {
+          fetchManifest();
+        }
+      )
+      .subscribe();
+
     fetchManifest();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [tripId]);
 
   return (
