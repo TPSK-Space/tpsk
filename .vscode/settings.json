@@ -1,0 +1,27 @@
+{
+  // Nonaktifkan validasi CSS bawaan VS Code (pakai Tailwind IntelliSense untuk @tailwind)
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+
+  // TypeScript
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+
+  // Tailwind (diaktifkan otomatis jika ekstensi Tailwind CSS IntelliSense terpasang)
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ],
+
+  // File yang disembunyikan dari explorer
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/tsconfig.tsbuildinfo": true
+  }
+}
