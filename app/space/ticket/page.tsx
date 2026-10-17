@@ -573,6 +573,22 @@ function RundownList({ rundowns }: { rundowns: RundownItem[] }) {
     });
   };
 
+  // Konversi menit -> "Xj Ym" (contoh: 90 -> "1j 30m", 45 -> "45m")
+  const fmtDuration = (mins?: number | null) => {
+    if (!mins || mins <= 0) return null;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}j`;
+    return `${h}j ${m}m`;
+  };
+
+  // Emoji lucu berdasarkan nomor urut agenda
+  const emojiFor = (i: number) => {
+    const pool = ["🚌", "☀️", "📸", "🍽️", "🏞️", "🎒", "🛣️", "🌅", "🛒", "🎉"];
+    return pool[i % pool.length];
+  };
+
   if (rundowns.length === 0) {
     return (
       <div className="bg-[#121212] border border-[#262626] rounded-2xl p-8 text-center">
@@ -603,6 +619,7 @@ function RundownList({ rundowns }: { rundowns: RundownItem[] }) {
       <ol className="relative border-l border-[#2a2a2a] ml-2 space-y-5">
         {rundowns.map((r, i) => {
           const time = fmtTime(r.activity_time);
+          const duration = fmtDuration(r.duration_minutes);
           return (
             <li key={i} className="ml-5 relative">
               {/* node */}
@@ -610,24 +627,25 @@ function RundownList({ rundowns }: { rundowns: RundownItem[] }) {
               <span className="absolute -left-[26px] top-3.5 bottom-[-20px] w-px bg-gradient-to-b from-[#00ffd0]/40 to-[#262626] last:hidden" />
 
               <div className="bg-[#0a0a0a] border border-[#262626] rounded-xl px-3.5 py-3 hover:border-[#00ffd0]/40 transition-colors">
-                <div className="flex items-center justify-between gap-2 mb-1">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2 min-w-0">
                     {time && (
                       <span className="text-[#00ffd0] text-sm font-black font-mono tracking-wider tabular-nums">
                         {time}
                       </span>
                     )}
-                    {r.duration_minutes ? (
-                      <span className="text-[0.55rem] font-bold text-neutral-400 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md px-1.5 py-0.5">
-                        {r.duration_minutes} mnt
+                    {duration && (
+                      <span className="inline-flex items-center gap-1 text-[0.55rem] font-bold text-[#00ffd0] bg-[#00ffd0]/10 border border-[#00ffd0]/20 rounded-md px-1.5 py-0.5">
+                        ⏱ {duration}
                       </span>
-                    ) : null}
+                    )}
                   </div>
                   <span className="text-[0.55rem] font-bold text-neutral-600 shrink-0">
                     #{String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
                 <p className="text-white text-sm font-medium leading-snug">
+                  <span className="mr-1.5" aria-hidden>{emojiFor(i)}</span>
                   {r.description || "-"}
                 </p>
               </div>
