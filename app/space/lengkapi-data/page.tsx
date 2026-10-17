@@ -112,7 +112,7 @@ function LengkapiDataInner() {
     setSaving(true);
     setError(null);
     try {
-      await apiClient.post("/api/public/participants/complete", {
+      await apiClient.post("/api/public/participants", {
         participant_id: selected.participant_id,
         fullname: fullname.trim(),
         address: address.trim(),
